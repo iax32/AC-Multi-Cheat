@@ -1,26 +1,87 @@
-# WorldToScreen Function Documentation
+# WorldToScreen, Aimbot, and Wallhack Documentation
 
-## Overview
+## 11.2.13 Implementation of the Aimbot
+
+### Define Constants and Global Variables
+In `geometry.h`, the macro `M_PI` is defined to store the mathematical constant Pi (3.14159265358979323846). This macro is used later for converting radians to degrees.
+```cpp
+#define M_PI 3.14159265358979323846
+```
+Additionally, three `float` variables are declared as `extern` in `geometry.h`. These variables are defined globally so their values can be accessed and modified across different files:
+```cpp
+extern float nearest_enemy;
+extern float new_yaw;
+extern float new_pitch;
+```
+- `nearest_enemy`: Stores the distance to the nearest enemy, used to target the closest opponent.
+- `new_yaw`: Holds the calculated yaw angle, which determines the horizontal aiming direction (rotation around the vertical axis).
+- `new_pitch`: Holds the calculated pitch angle, which determines the vertical aiming direction (rotation around the horizontal axis).
+
+### Function to Calculate Aiming Angles
+A function named `CalculateNewAngles` is created in `geometry.cpp`. It takes references to a player structure and an enemy structure as parameters.
+```cpp
+void CalculateNewAngles(Entity& Player, Entity& entity);
+```
+
+### Calculate Direction Vector
+The vector from the player to the enemy is computed by subtracting their coordinates:
+```cpp
+float vector_x = entity.Origin.X - Player.Origin.X;
+float vector_y = entity.Origin.Y - Player.Origin.Y;
+float vector_z = entity.Origin.Z - Player.Origin.Z;
+```
+
+### Compute Distance Using Hypotenuse Function
+A function named `hypothenuse` is defined to compute the hypotenuse using the Pythagorean theorem.
+```cpp
+float hypothenuse(float a, float b) {
+    return sqrtf(pow(a,2) + pow(b,2));
+}
+```
+The distance to the enemy is then calculated:
+```cpp
+float distance = hypothenuse(vector_x, vector_y);
+```
+
+### Identify the Nearest Enemy
+Check if `nearest_enemy` has its default value (`-1.0f`) or if the newly calculated `distance` is smaller than the current `nearest_enemy` value:
+```cpp
+if (nearest_enemy == -1.0f || distance < nearest_enemy) {
+    nearest_enemy = distance;
+}
+```
+
+### Calculate Yaw Angle
+The yaw angle is calculated using `atan2` and converted from radians to degrees:
+```cpp
+float angle_xy = atan2f(vector_y, vector_x);
+float yaw = (float)(angle_xy * (180.0 / M_PI));
+new_yaw = yaw + 90;
+```
+
+### Calculate Pitch Angle
+The pitch angle is calculated using `atan`:
+```cpp
+float angle_z = atanf(vector_z / hypothenuse(vector_x, vector_y));
+new_pitch = (float)(angle_z * (180.0 / M_PI));
+```
+
+### Forward Declaration
+To allow function usage across multiple files, a forward declaration is added in `geometry.h`:
+```cpp
+void CalculateNewAngles(Entity& Player, Entity& entity);
+```
+
+## 11.3 Development of the Wallhack
+### WorldToScreen Function
 The `WorldToScreen` function converts 3D world coordinates into 2D screen coordinates. It takes three parameters:
-
-1. **VecOrigin**: A `Vec3` vector representing the world position of the object or player to be converted. This is passed by reference to avoid unnecessary copies.
-2. **NDC**: A `Vec2` vector passed by reference, which stores the computed Normalized Device Coordinates (NDC), representing the object's position in the 2D screen space.
-3. **MVPMatrix**: A pointer to a `4x4` matrix containing the Model-View-Projection (MVP) matrix. This matrix transforms the world position into homogeneous coordinates and then into screen coordinates.
-
-The function returns a boolean value:
-- `true` if the transformation was successful and the object is visible.
-- `false` if the object is outside the visible area or behind the camera.
-
-### Function Signature
 ```cpp
 bool WorldToScreen(const Vec3& VecOrigin, Vec2& NDC, float* MVPMatrix);
 ```
 
-## Transformation Process
-
-### Step 1: Convert World Coordinates to Homogeneous Coordinates
-The world position (`VecOrigin`) is multiplied by the MVP matrix. The MVP matrix is stored in OpenGL in a **column-major format**:
-
+### Transformation Process
+#### Convert World Coordinates to Homogeneous Coordinates
+The MVP matrix is stored in a column-major format in OpenGL:
 ```
 MVPMatrix = |  0   4   8  12 |
             |  1   5   9  13 |
@@ -28,66 +89,38 @@ MVPMatrix = |  0   4   8  12 |
             |  3   7  11  15 |
 ```
 
-- The **first column** `(0,1,2,3)` affects the X transformation.
-- The **second column** `(4,5,6,7)` affects the Y transformation.
-- The **third column** `(8,9,10,11)` affects the Z transformation.
-- The **fourth column** `(12,13,14,15)` applies translation.
-
-The homogeneous coordinates are calculated as follows:
-
-```cpp
-Vec4 homogeneCoords;
-homogeneCoords.X = VecOrigin.X * MVPMatrix[0] + VecOrigin.Y * MVPMatrix[4] + VecOrigin.Z * MVPMatrix[8] + MVPMatrix[12];
-homogeneCoords.Y = VecOrigin.X * MVPMatrix[1] + VecOrigin.Y * MVPMatrix[5] + VecOrigin.Z * MVPMatrix[9] + MVPMatrix[13];
-homogeneCoords.W = VecOrigin.X * MVPMatrix[3] + VecOrigin.Y * MVPMatrix[7] + VecOrigin.Z * MVPMatrix[11] + MVPMatrix[15];
-```
-
-The **Z-coordinate** is not calculated, as it is not needed for screen coordinate conversion. Instead, it is used for depth information storage.
-
-### Step 2: Visibility Check
-Before converting the homogeneous coordinates into screen coordinates, the function checks if the object is visible.
-
+#### Check Object Visibility
 ```cpp
 if (homogeneCoords.W < 0.1f) {
     return false; // Object is behind the camera
 }
 ```
 
-### Step 3: Convert to Normalized Device Coordinates (NDC)
-If the object is visible, its **X and Y** values are divided by the **W** component to obtain **Normalized Device Coordinates (NDC)**.
-
+#### Convert to Normalized Device Coordinates (NDC)
 ```cpp
 NDC.X = homogeneCoords.X / homogeneCoords.W;
 NDC.Y = homogeneCoords.Y / homogeneCoords.W;
 ```
 
-NDC values range from **-1 to 1**, representing the object's position in the field of view.
-
-### Step 4: Screen Bounds Check
-If the NDC values are outside the range `[-1, 1]`, the object is outside the screen view.
-
+#### Check Screen Bounds
 ```cpp
 if (NDC.X < -1.0f || NDC.X > 1.0f || NDC.Y < -1.0f || NDC.Y > 1.0f) {
     return false; // Object is outside the field of view
 }
 ```
 
-### Step 5: Return Success
-If all checks pass, the function returns `true`, allowing the NDC values to be used for rendering elements like ESP boxes.
-
+#### Return Success
 ```cpp
 return true;
 ```
 
-## Forward Declaration
-To use the function in other files, add the following forward declaration in `geometry.h`:
-
+### Forward Declaration
 ```cpp
 bool WorldToScreen(const Vec3& VecOrigin, Vec2& NDC, float* MVPMatrix);
 ```
 
 ## Summary
-The `WorldToScreen` function is crucial for converting 3D game objects into 2D screen space. It ensures objects are visible before processing their coordinates and can be used for rendering overlays or UI elements.
+This document covers the implementation of the `WorldToScreen` function, the Aimbot, and the Wallhack in a structured and formatted manner suitable for GitHub documentation. The Aimbot ensures that the nearest enemy is targeted by calculating yaw and pitch angles, while the Wallhack transforms 3D coordinates into a 2D space for visualization.
 
 
 
