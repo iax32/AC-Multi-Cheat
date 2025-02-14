@@ -1,6 +1,6 @@
 # WorldToScreen, Aimbot, and Wallhack Documentation
 
-## 11.2.13 Implementation of the Aimbot
+## 1. Implementation of the Aimbot
 
 ### Define Constants and Global Variables
 In `geometry.h`, the macro `M_PI` is defined to store the mathematical constant Pi (3.14159265358979323846). This macro is used later for converting radians to degrees.
@@ -72,7 +72,7 @@ To allow function usage across multiple files, a forward declaration is added in
 void CalculateNewAngles(Entity& Player, Entity& entity);
 ```
 
-## 11.3 Development of the Wallhack
+## 2. Development of the Wallhack
 ### WorldToScreen Function
 The `WorldToScreen` function converts 3D world coordinates into 2D screen coordinates. It takes three parameters:
 ```cpp
