@@ -1,7 +1,3 @@
-# ac_multi_cheat
-
-External Multi Cheat in Assault Cube
-
 # WorldToScreen Function Documentation
 
 ## Overview
