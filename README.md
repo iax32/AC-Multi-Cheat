@@ -22,6 +22,9 @@
 - Make Compiling better / for linux and older windows version
 - Add more comments
 - Port to other Operating Systems
+- add 1 or 2 more imgui menus to display debug variables
+- add debug features like move entity or change entity name etc. ( health, armor etc. ) in imgui
+- Use imgui to its fullest potential
 
 
 
