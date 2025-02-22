@@ -1,5 +1,47 @@
 #include "render.h"
 
+// Helper function to convert const char* to LPCWSTR
+LPCWSTR charToLPCWSTR(const char* charArray) {
+	size_t len = strlen(charArray) + 1;
+	wchar_t* wString = new wchar_t[len];
+	size_t convertedChars = 0;
+	mbstowcs_s(&convertedChars, wString, len, charArray, _TRUNCATE);
+	return wString;
+}
+
+// Function to create bitmap display lists for a font
+GLuint createBitmapFont(HDC hdc, const char* fontName, int fontHeight)
+{
+	LPCWSTR wFontName = charToLPCWSTR(fontName); // Convert char* to LPCWSTR
+
+	HFONT hFont = CreateFont(
+		fontHeight, 0, 0, 0,
+		FW_NORMAL, FALSE, FALSE, FALSE,
+		ANSI_CHARSET, OUT_TT_PRECIS,
+		CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY,
+		FF_DONTCARE | DEFAULT_PITCH,
+		wFontName);
+
+	SelectObject(hdc, hFont);
+	GLuint listBase = glGenLists(96);
+	wglUseFontBitmaps(hdc, 32, 96, listBase);
+	DeleteObject(hFont);
+	delete[] wFontName; // Clean up the dynamically allocated memory
+	return listBase;
+}
+
+// Function to render text using the bitmap font
+void RenderText(const char* text, GLuint listBase, float x, float y) 
+{
+	glRasterPos2f(x, y);
+	glPushAttrib(GL_LIST_BIT);
+	glListBase(listBase - 32);
+	glCallLists(strlen(text), GL_UNSIGNED_BYTE, text);
+	glPopAttrib();
+}
+
+
+
 void DrawBox(Vec2 FeetCoords, Vec2 HeadCoords, float color[4])
 {
 	glColor4f(color[0], color[1], color[2], color[3]);
@@ -127,6 +169,45 @@ void DrawSnapLines(Vec2 FeetCoords, float color[4])
 	glVertex2f(0.0f, -1.0f);
 	glVertex2f(FeetCoords.X, FeetCoords.Y);
 	glEnd();
+}
+
+void DrawLine(Vec2 Input, Vec2 Destination ,  float color[4])
+{
+	glColor4f(color[0], color[1], color[2], color[3]);
+	glBegin(GL_LINES);
+	glVertex2f(Input.X, Input.Y);
+	glVertex2f(Destination.X, Destination.Y);
+	glEnd();
+}
+
+void DrawBox3D(Vec2 screenCorners[8], float color[4]) {
+	
+	// Bottom Square
+	DrawLine(screenCorners[0], screenCorners[1], color);
+	DrawLine(screenCorners[1], screenCorners[2], color);
+	DrawLine(screenCorners[2], screenCorners[3], color);
+	DrawLine(screenCorners[3], screenCorners[0], color);
+
+	// Top Square
+	DrawLine(screenCorners[4], screenCorners[5], color);
+	DrawLine(screenCorners[5], screenCorners[6], color);
+	DrawLine(screenCorners[6], screenCorners[7], color);
+	DrawLine(screenCorners[7], screenCorners[4], color);
+
+	// Connecting Bottom to Top
+	DrawLine(screenCorners[0], screenCorners[4], color);
+	DrawLine(screenCorners[1], screenCorners[5], color);
+	DrawLine(screenCorners[2], screenCorners[6], color);
+	DrawLine(screenCorners[3], screenCorners[7], color);
+	
+}
+
+
+void DrawMulitLine(Vec2* screenCorners, int length,float color[4])
+{
+	DrawLine(screenCorners[0], screenCorners[1], color);
+	DrawLine(screenCorners[1], screenCorners[2], color);
+	DrawLine(screenCorners[2], screenCorners[3], color);
 
 }
 

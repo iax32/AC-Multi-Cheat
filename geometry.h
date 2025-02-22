@@ -11,4 +11,5 @@ extern float new_pitch;
 void CalculateNewAngles(Entity& Player, Entity& entity);
 bool WorldToScreen(const Vec3& VecOrigin, Vec2& NDC, float* MVPMatrix);
 
+bool WorldToScreenPlayer(const Vec3& VecOrigin, Vec2& NDC, float* MVPMatrix);
 

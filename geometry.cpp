@@ -29,8 +29,7 @@ void CalculateNewAngles(Entity& Player, Entity& entity)
 
 bool WorldToScreen(const Vec3& VecOrigin, Vec2& NDC, float* MVPMatrix)
 {
-
-	Vec4 homogeneCoords;
+	Vec4 homogeneCoords; 
 	homogeneCoords.X = 
 		VecOrigin.X * MVPMatrix[0] +
 		VecOrigin.Y * MVPMatrix[4] +
@@ -49,21 +48,57 @@ bool WorldToScreen(const Vec3& VecOrigin, Vec2& NDC, float* MVPMatrix)
 		VecOrigin.Z * MVPMatrix[11] +
 		MVPMatrix[15];
 
-	if (homogeneCoords.W < 0.1f)
+	
+	
+	if (homogeneCoords.W < 0.001f)
 	{
 		return false; // Objekt ist hinter der Kamera
 	}
+	
+	
 
 	NDC.X = homogeneCoords.X / homogeneCoords.W;
 	NDC.Y = homogeneCoords.Y / homogeneCoords.W;
 
+	
 	if (NDC.X < -1.0f || NDC.X > 1.0f ||
 		NDC.Y < -1.0f || NDC.Y > 1.0f)
 	{
 		return false; // Objekt ist auﬂerhalb des Sichtfelds
 	}
+	
 
 	return true;
 
+}
+
+bool WorldToScreenPlayer(const Vec3& VecOrigin, Vec2& NDC, float* MVPMatrix)
+{
+	Vec4 homogeneCoords;
+	homogeneCoords.X =
+		VecOrigin.X * MVPMatrix[0] +
+		VecOrigin.Y * MVPMatrix[4] +
+		VecOrigin.Z * MVPMatrix[8] +
+		MVPMatrix[12];
+
+	homogeneCoords.Y =
+		VecOrigin.X * MVPMatrix[1] +
+		VecOrigin.Y * MVPMatrix[5] +
+		VecOrigin.Z * MVPMatrix[9] +
+		MVPMatrix[13];
+
+	homogeneCoords.W =
+		VecOrigin.X * MVPMatrix[3] +
+		VecOrigin.Y * MVPMatrix[7] +
+		VecOrigin.Z * MVPMatrix[11] +
+		MVPMatrix[15];
+
+	
+	NDC.X = homogeneCoords.X / homogeneCoords.W;
+	NDC.Y = homogeneCoords.Y / homogeneCoords.W;
+
+
+
+	return true;
 }
 
