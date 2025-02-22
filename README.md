@@ -1,3 +1,24 @@
+# To do
+- add direction vectors ( maybe with imgui )
+- add origin coordinates axis ( maybe with imgui idk )
+- add color management for debug elements to imgui
+- manage imgui menu better
+- clean and organise code
+- only use one naming convesion
+- display variables for debug purposes
+- display angles in triangle
+- Better debugging for entities ( add feaure to imgui / display entity data in imgui menu )
+- Manage vertices
+- Avoid magic numbers
+- Use Enums to avoid magic numbers
+- Use classes instead of structs for entities and players
+- More OOP
+- Managae valid entities better
+- Manage std::vector for valid entities better
+- Manage WordlToscreen Pipeline better
+
+
+
 # WorldToScreen, Aimbot, and Wallhack Documentation
 
 ## 1. Implementation of the Aimbot
