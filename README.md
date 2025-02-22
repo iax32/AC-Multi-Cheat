@@ -21,6 +21,7 @@
 - Clean Up Code and manage variables in a global file
 - Make Compiling better / for linux and older windows version
 - Add more comments
+- Port to other Operating Systems
 
 
 
