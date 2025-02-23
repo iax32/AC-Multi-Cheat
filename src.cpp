@@ -69,6 +69,21 @@ bool activatedLastPos = false;
 
 GLuint fontBase;
 
+Vec2 playerHeadCoords;
+Vec2 playerFeetCoords;
+Vec2 HeadCoords;
+Vec2 FeetCoords;
+Vec2 distanceNDC;
+
+std::string str;
+std::string str1;
+
+Vec2 screenCorners2[4];
+Vec2 boundingBoxesNdc[8];
+
+Vec2 gizmoNdc[3];
+Vec2 gizmoPlayerNdc[3];
+
 
 // Main code
 int main(int, char**)
@@ -131,6 +146,25 @@ int main(int, char**)
     HDC hdc = GetDC(glfwGetWin32Window(window));
     fontBase = createBitmapFont(hdc, "Consolas", 24);
 
+    float menu_alpha;
+    float menu_background_color[4];
+    bool esp_show_distance = false;
+    bool esp_show_names = false;
+    float aimbot_smoothness;
+    float aimbot_fov;
+    bool aimbot_target_head = false;
+    bool aimbot_target_chest = false;
+    bool enable_bunnyhop = false;
+    bool enable_no_recoil = false;
+    bool enable_no_spread = false;
+    bool enable_triggerbot = false;
+    bool enable_radar = false;
+    bool enable_crosshair = false;
+    float crosshair_size;
+    float color_crosshair[4];
+    float color_radar[4];
+
+
     // Main loope
 #ifdef __EMSCRIPTEN__
     // For an Emscripten build we are disabling file-system access, so let's not attempt to do a fopen() of the imgui.ini file.
@@ -170,99 +204,152 @@ int main(int, char**)
 
         if (menu_visible)
         {
-            ImGui::SetNextWindowSize(ImVec2(500, 600));
-            ImGui::Begin("AC Multi Cheat", nullptr, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse);
+            ImGui::SetNextWindowSize(ImVec2(850, 700));
+            ImGui::Begin("AC Multi Cheat", nullptr, ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_AlwaysAutoResize);
 
-            // ESP Selection Dropdown
-            ImGui::TextColored(ImVec4(0.2f, 0.8f, 1.0f, 1.0f), "ESP Settings");
-            ImGui::Separator();
-            
-            const char* esp_modes[] = { "Off", "Box", "3D Box", "Corner Box", "Skeleton" };
-            ImGui::Combo("ESP Mode", &esp_mode, esp_modes, IM_ARRAYSIZE(esp_modes));
-
-            ImGui::Spacing();
-
-            // ESP Options
-            ImGui::Columns(2, nullptr, false);
-            ImGui::Text("Team ESP"); ImGui::NextColumn();
-            ImGui::Text("Enemy ESP"); ImGui::NextColumn();
-
-            ImGui::Checkbox("T Box", &enable_team_esp); ImGui::NextColumn();
-            ImGui::Checkbox("E Box", &enable_enemy_esp); ImGui::NextColumn();
-            ImGui::Checkbox("Aimbot Debug", &enable_aimbot_debug); ImGui::NextColumn();
-
-
-            ImGui::Checkbox("T Health Bar", &enable_team_healthbar); ImGui::NextColumn();
-            ImGui::Checkbox("E Health Bar", &enable_enemy_healthbar); ImGui::NextColumn();
-
-            ImGui::Checkbox("T Armor Bar", &enable_team_armorbar); ImGui::NextColumn();
-            ImGui::Checkbox("E Armor Bar", &enable_enemy_armorbar); ImGui::NextColumn();
-            ImGui::Columns(1);
-            ImGui::Spacing();
-
-            // Snaplines
-            ImGui::TextColored(ImVec4(0.2f, 0.8f, 1.0f, 1.0f), "Snaplines");
-            ImGui::Separator();
-            ImGui::Checkbox("Team Snaplines", &enable_team_snaplines);
-            ImGui::SameLine();
-            ImGui::Checkbox("Enemy Snaplines", &enable_enemy_snaplines);
-            ImGui::Spacing();
-
-
-            // Farboptionen
-            ImGui::TextColored(ImVec4(0.2f, 0.8f, 1.0f, 1.0f), "Colors");
-            ImGui::Separator();
-
-            // Farben für Team und Enemy ESP
-            ImGui::Columns(2, nullptr, false);
-            ImGui::ColorEdit4("Team ESP", color_team_box, ImGuiColorEditFlags_NoInputs); ImGui::NextColumn();
-            ImGui::ColorEdit4("Enemy ESP", color_enemy_box, ImGuiColorEditFlags_NoInputs); ImGui::NextColumn();
-
-            ImGui::ColorEdit4("Team Snaplines", color_team_snaplines, ImGuiColorEditFlags_NoInputs); ImGui::NextColumn();
-            ImGui::ColorEdit4("Enemy Snaplines", color_enemy_snaplines, ImGuiColorEditFlags_NoInputs); ImGui::NextColumn();
-
-            // Zurück zu einer Spalte
-            ImGui::Columns(1);
-            ImGui::Spacing();
-
-
-            // Debugging Options
-            ImGui::TextColored(ImVec4(0.9f, 0.3f, 0.3f, 1.0f), "Debugging");
-            ImGui::Separator();
-            
-            ImGui::Checkbox("Show Direction Vectors", &debug_vectors);
-            ImGui::Checkbox("Enable Aimbot Debug", &debug_aimbot);
-            ImGui::Checkbox("Show Entity Info", &debug_entities);
-            ImGui::Spacing();
-
-            // Entity List
-            if (debug_entities)
+            if (ImGui::BeginTabBar("CheatTabs"))
             {
-                ImGui::TextColored(ImVec4(0.5f, 1.0f, 0.5f, 1.0f), "Entities");
-                ImGui::Separator();
-                for (size_t i = 0; i < entity.size(); i++)
+                if (ImGui::BeginTabItem("ESP"))
                 {
-                    std::string label = "Entity " + std::to_string(i);
-                    if (ImGui::CollapsingHeader(label.c_str()))
-                    {
-                        ImGui::Text("Base Address: 0x%X", entity[i].baseaddress);
-                        ImGui::Text("Health: %d", entity[i].health);
-                        ImGui::Text("Armor: %d", entity[i].armor);
-                        ImGui::Text("Team: %d", entity[i].team);
-                        ImGui::Text("Position: X: %.2f Y: %.2f Z: %.2f", entity[i].Origin.X, entity[i].Origin.Y, entity[i].Origin.Z);
-                        ImGui::Text("Head Pos: X: %.2f Y: %.2f Z: %.2f", entity[i].HeadOrigin.X, entity[i].HeadOrigin.Y, entity[i].HeadOrigin.Z);
-                        ImGui::Text("Angles: X: %.2f Y: %.2f Z: %.2f", entity[i].Angles.X, entity[i].Angles.Y, entity[i].Angles.Z);
-                    }
-                }
-            }
+                    ImGui::BeginChild("ESP_Settings", ImVec2(400, 150), true);
+                    ImGui::TextColored(ImVec4(0.2f, 0.8f, 1.0f, 1.0f), "ESP Settings");
+                    const char* esp_modes[] = { "Off", "Box", "3D Box", "Corner Box", "Skeleton", "Glow" };
+                    ImGui::Combo("ESP Mode", &esp_mode, esp_modes, IM_ARRAYSIZE(esp_modes));
+                    ImGui::Checkbox("Show Distance", &esp_show_distance);
+                    ImGui::Checkbox("Show Names", &esp_show_names);
+                    ImGui::EndChild();
 
-            // Aimbot Options
-            ImGui::TextColored(ImVec4(1.0f, 0.2f, 0.2f, 1.0f), "Aimbot");
-            ImGui::Separator();
-            ImGui::Checkbox("Enable Aimbot", &enable_aimbot);
+                    ImGui::SameLine();
+
+                    ImGui::BeginChild("ESP_Checkboxes", ImVec2(400, 150), true);
+                    ImGui::Columns(2, nullptr, false);
+                    ImGui::Text("Team ESP"); ImGui::NextColumn();
+                    ImGui::Text("Enemy ESP"); ImGui::NextColumn();
+                    ImGui::Checkbox("Team Box", &enable_team_esp); ImGui::NextColumn();
+                    ImGui::Checkbox("Enemy Box", &enable_enemy_esp); ImGui::NextColumn();
+                    ImGui::Checkbox("Team Health Bar", &enable_team_healthbar); ImGui::NextColumn();
+                    ImGui::Checkbox("Enemy Health Bar", &enable_enemy_healthbar); ImGui::NextColumn();
+                    ImGui::Checkbox("Team Armor Bar", &enable_team_armorbar); ImGui::NextColumn();
+                    ImGui::Checkbox("Enemy Armor Bar", &enable_enemy_armorbar); ImGui::NextColumn();
+
+                    ImGui::Checkbox("Team Snaplines", &enable_team_snaplines); ImGui::NextColumn();
+                    ImGui::Checkbox("Enemy Snaplines", &enable_enemy_snaplines); ImGui::NextColumn();
+                    ImGui::EndChild();
+
+                    ImGui::NewLine();
+
+                    ImGui::BeginChild("Color_Settings", ImVec2(400, 150), true);
+                    ImGui::TextColored(ImVec4(0.2f, 0.8f, 1.0f, 1.0f), "Colors");
+
+                    // Farben für Team und Enemy ESP
+                    ImGui::Columns(2, nullptr, false);
+                    ImGui::ColorEdit4("Team ESP", color_team_box, ImGuiColorEditFlags_NoInputs); ImGui::NextColumn();
+                    ImGui::ColorEdit4("Enemy ESP", color_enemy_box, ImGuiColorEditFlags_NoInputs); ImGui::NextColumn();
+
+                    ImGui::ColorEdit4("Team Snaplines", color_team_snaplines, ImGuiColorEditFlags_NoInputs); ImGui::NextColumn();
+                    ImGui::ColorEdit4("Enemy Snaplines", color_enemy_snaplines, ImGuiColorEditFlags_NoInputs); ImGui::NextColumn();
+
+                    // Zurück zu einer Spalte
+                    ImGui::Columns(1);
+                    ImGui::Separator();
+
+                    ImGui::ColorEdit4("Crosshair", color_crosshair, ImGuiColorEditFlags_NoInputs);
+                    ImGui::ColorEdit4("Radar", color_radar, ImGuiColorEditFlags_NoInputs);
+                    ImGui::EndChild();
+
+                    ImGui::SameLine();
+
+                    ImGui::BeginChild("Radar_Settings", ImVec2(400, 150), true);
+                    ImGui::TextColored(ImVec4(0.8f, 0.3f, 1.0f, 1.0f), "Radar");
+                    ImGui::Checkbox("Enable Radar", &enable_radar);
+                    ImGui::EndChild();
+
+                    ImGui::NewLine();
+
+                    ImGui::BeginChild("Crosshair_Settings", ImVec2(400, 150), true);
+                    ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "Crosshair");
+                    ImGui::Checkbox("Enable Custom Crosshair", &enable_crosshair);
+                    ImGui::SliderFloat("Crosshair Size", &crosshair_size, 5.0f, 50.0f);
+                    ImGui::EndChild();
+
+                    ImGui::SameLine();
+                    
+                    ImGui::BeginChild("Debugging", ImVec2(400, 150), true);
+                    // Debugging Options
+                    ImGui::TextColored(ImVec4(0.9f, 0.3f, 0.3f, 1.0f), "Debugging");
+                    ImGui::Separator();
+                    ImGui::Checkbox("Show Direction Vectors", &debug_vectors);
+                    ImGui::Checkbox("Enable Aimbot Debug", &debug_aimbot);
+                    ImGui::Checkbox("Show Entity Info", &debug_entities);
+                    ImGui::EndChild();
+
+
+                    if (debug_entities)
+                    {
+                        ImVec2 section_pos = ImGui::GetCursorScreenPos(); // Get position
+                        ImVec2 section_size = ImVec2(ImGui::GetContentRegionAvail().x, 180); // Set size (adjust height as needed)
+
+                        ImGui::GetWindowDrawList()->AddRectFilled(
+                            section_pos,
+                            ImVec2(section_pos.x + section_size.x, section_pos.y + section_size.y),
+                            IM_COL32(20, 20, 20, 200), // Background color (RGBA)
+                            5.0f // Optional: Rounded corners
+                        );
+                        ImGui::TextColored(ImVec4(0.5f, 1.0f, 0.5f, 1.0f), "Entities");
+                        ImGui::Separator();
+                        for (size_t i = 0; i < entity.size(); i++)
+                        {
+                            std::string label = "Entity " + std::to_string(i);
+                            if (ImGui::CollapsingHeader(label.c_str()))
+                            {
+                                ImGui::Text("Health: %d", entity[i].health);
+                                ImGui::Text("Armor: %d", entity[i].armor);
+                                ImGui::Text("Team: %d", entity[i].team);
+                            }
+                        }
+                    }
+
+
+                    ImGui::EndTabItem();
+                }
+
+                if (ImGui::BeginTabItem("Aimbot"))
+                {
+                    ImGui::BeginChild("Aimbot_Settings", ImVec2(400, 200), true);
+                    ImGui::TextColored(ImVec4(1.0f, 0.2f, 0.2f, 1.0f), "Aimbot");
+                    ImGui::Checkbox("Enable Aimbot", &enable_aimbot);
+                    ImGui::SliderFloat("FOV", &aimbot_fov, 0.0f, 180.0f, "%.1f");
+                    ImGui::SliderFloat("Smoothness", &aimbot_smoothness, 0.0f, 1.0f, "%.2f");
+                    ImGui::Checkbox("Target Head", &aimbot_target_head);
+                    ImGui::Checkbox("Target Chest", &aimbot_target_chest);
+                    ImGui::EndChild();
+
+                    ImGui::BeginChild("Triggerbot_Settings", ImVec2(400, 200), true);
+                    ImGui::TextColored(ImVec4(0.8f, 0.5f, 0.2f, 1.0f), "Triggerbot");
+                    ImGui::Checkbox("Enable Triggerbot", &enable_triggerbot);
+                    ImGui::EndChild();
+
+
+                    ImGui::EndTabItem();
+                }
+
+                if (ImGui::BeginTabItem("Movement"))
+                {
+                    ImGui::BeginChild("Movement_Settings", ImVec2(400, 200), true);
+                    ImGui::TextColored(ImVec4(0.3f, 1.0f, 0.3f, 1.0f), "Movement");
+                    ImGui::Checkbox("Bunnyhop", &enable_bunnyhop);
+                    ImGui::Checkbox("No Recoil", &enable_no_recoil);
+                    ImGui::Checkbox("No Spread", &enable_no_spread);
+                    ImGui::EndChild();
+                    ImGui::EndTabItem();
+                }
+
+                ImGui::EndTabBar();
+            }
 
             ImGui::End();
         }
+
 
 
         Player.getEntity();
@@ -272,25 +359,7 @@ int main(int, char**)
         Player.Matrix = Memory::RPM<MVPMatrix>(moduleBase + offsets::mvp_matrix);
         uintptr_t listEntry = Memory::RPM<uintptr_t>(moduleBase + offsets::entitylist);
 
-        Vec2 playerHeadCoords;
-        Vec2 playerFeetCoords;
-        Vec2 HeadCoords;
-        Vec2 FeetCoords;
-        Vec2 distanceNDC;
-
-        Vec2 originNDC;
-
-        Vec3 origin
-        {
-            0,
-            0,
-            0
-        };
-
-        float playerHeight = 75.0f;  // Approximate height (adjust based on game)
-        float playerWidth = 1.0f;   // Approximate width
-        std::string str;
-        std::string str1;
+        
 
         for (unsigned int i = 0; i < 32; i++)  // Fix loop condition (0 <= 32 can cause unnecessary iterations)
         {
@@ -326,10 +395,8 @@ int main(int, char**)
             };
 
 
-            Vec2 screenCorners2[4];
 
             WorldToScreen(corners2[2], screenCorners2[2], Player.Matrix.Matrix);
-
             WorldToScreenPlayer(Player.Origin, screenCorners2[0], Player.Matrix.Matrix);
             WorldToScreenPlayer(Player.Origin, playerFeetCoords, Player.Matrix.Matrix);
 
@@ -351,6 +418,8 @@ int main(int, char**)
             }
             */
             
+            
+
             float boxColor[4] = { 0.0f, 1.0f, 1.0f, 1.0f }; // Red box
 
             Vec3 boundingBoxes[8] =
@@ -368,9 +437,8 @@ int main(int, char**)
                   {entity[i].Origin.X - 2, entity[i].Origin.Y + 2, entity[i].HeadOrigin.Z},
             };
 
-            Vec2 boundingBoxesNdc[8];
+            
             bool allCornersValid = true;
-
 
             for (int j = 0; j < 8; j++) {
                 if (!WorldToScreen(boundingBoxes[j], boundingBoxesNdc[j], Player.Matrix.Matrix)) {
@@ -379,12 +447,11 @@ int main(int, char**)
                 }
             }
             
-           
             // Determine if the entity is an enemy
             bool is_enemy = (Player.team != entity[i].team);
 
             if (is_enemy) {
-
+                glLineWidth(1.0f);
                 switch (esp_mode)
                 {
                 case 1:
@@ -393,7 +460,7 @@ int main(int, char**)
                     break;
                 case 2:
                     if (allCornersValid && enable_enemy_esp)
-                        DrawBox3D(boundingBoxesNdc, boxColor);
+                        DrawBox3D(boundingBoxesNdc, color_enemy_box);
                     break;
                 case 3:
                     if (enable_enemy_esp)
@@ -412,6 +479,7 @@ int main(int, char**)
                 if (debug_aimbot)
                 {
                     // Triangle 1 XY
+                    glLineWidth(1.0f);
                     DrawLine(screenCorners2[0], FeetCoords, triangleColor);
                     RenderText("90", fontBase, screenCorners2[2].X, screenCorners2[2].Y + 0.1);
                     DrawLine(FeetCoords, screenCorners2[2], triangleColor);
@@ -427,9 +495,13 @@ int main(int, char**)
 
                     glLineWidth(1.0f);
                     DrawLine(HeadCoords, screenCorners2[0], triangleColor);
+                    glLineWidth(1.0f);
                 }
+
                 glColor4f(1, 1, 1, 1);
-                RenderText("Enemy", fontBase, HeadCoords.X, HeadCoords.Y);
+#
+                if(esp_show_names)
+                    RenderText("Enemy", fontBase, HeadCoords.X, HeadCoords.Y);
 
 
                 if (enable_aimbot)
@@ -447,7 +519,7 @@ int main(int, char**)
                     break;
                 case 2:
                     if (allCornersValid && enable_team_esp)
-                        DrawBox3D(boundingBoxesNdc, boxColor);
+                        DrawBox3D(boundingBoxesNdc, color_team_box);
                     break;
                 case 3:
                     if (enable_team_esp)
@@ -463,7 +535,9 @@ int main(int, char**)
                     DrawArmorBar(FeetCoords, HeadCoords, entity[i].armor);
 
                 glColor4f(1,1,1,1);
-                RenderText("Teammate", fontBase, HeadCoords.X, HeadCoords.Y);
+
+                if (esp_show_names)
+                    RenderText("Teammate", fontBase, HeadCoords.X, HeadCoords.Y);
 
             }
 
@@ -484,9 +558,7 @@ int main(int, char**)
             };
 
             Vec2 gizmoPlayerNdc[3];
-
-
-
+            
             for (int i = 0; i < 3; i++)
             {
                 WorldToScreen(gizmo[i], gizmoNdc[i], Player.Matrix.Matrix);
@@ -536,11 +608,7 @@ int main(int, char**)
                 RenderText("Z", fontBase, gizmoPlayerNdc[2].X + 0.01, gizmoPlayerNdc[2].Y + 0.01);
                 glLineWidth(1.0f);
             }
-            
         }
-
-
-
 
         glColor4f(1, 1, 1, 1);
         RenderText(str.c_str(), fontBase, -0.8f, 0.9f);
@@ -552,13 +620,13 @@ int main(int, char**)
         if (activatedLastPos)
         {
             glColor4f(0,1,0,1);
-            
         }
         else
         {
             glColor4f(1, 0, 0, 1);
         }
         RenderText("Save Last Pos: Backspace", fontBase, -0.99f, 0.7f);
+
 
         Memory::WPM<int>(Player.baseaddress + offsets::mag_assaultRifle, 1337);
         Memory::WPM<int>(Player.baseaddress + offsets::health, 1337);
@@ -577,7 +645,6 @@ int main(int, char**)
                 PreviousPosition = Player.Origin;
             }
 		}
-
 
         // Rendering
         ImGui::Render();
