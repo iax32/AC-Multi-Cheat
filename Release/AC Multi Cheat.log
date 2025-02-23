@@ -1,36 +1,30 @@
-﻿  src.cpp
+﻿  imgui.cpp
+  imgui_demo.cpp
+  imgui_draw.cpp
+  imgui_impl_glfw.cpp
+  imgui_impl_opengl3.cpp
+  imgui_tables.cpp
+  imgui_widgets.cpp
+  geometry.cpp
+  render.cpp
+C:\Users\Falke\Source\Repos\AC-Multi-Cheat1234\geometry.cpp(5,25): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\Falke\Source\Repos\AC-Multi-Cheat1234\render.cpp(41,26): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Falke\Source\Repos\AC-Multi-Cheat1234\render.cpp(42,26): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Falke\Source\Repos\AC-Multi-Cheat1234\render.cpp(57,26): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+C:\Users\Falke\Source\Repos\AC-Multi-Cheat1234\render.cpp(58,26): warning C4244: 'argument': conversion from 'double' to 'GLfloat', possible loss of data
+  settings.cpp
+  src.cpp
 C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\minwindef.h(130,9): warning C4005: 'APIENTRY': macro redefinition
   (compiling source file 'src.cpp')
-      C:\Users\Falke\source\repos\AC-Multi-Cheat\Dependencies\include\GLFW\glfw3.h(123,11):
+      C:\Users\Falke\Source\Repos\AC-Multi-Cheat1234\Dependencies\include\GLFW\glfw3.h(123,11):
       see previous definition of 'APIENTRY'
   
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(484,89): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(487,96): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(548,78): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(548,78): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(557,69): warning C4838: conversion from 'double' to 'float' requires a narrowing conversion
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(557,69): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(578,79): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(578,57): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(582,79): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(582,57): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(586,79): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(586,57): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(589,93): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(600,91): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(600,63): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(604,91): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(604,63): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(608,91): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(608,63): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(150,11): warning C4101: 'menu_background_color': unreferenced local variable
-C:\Users\Falke\source\repos\AC-Multi-Cheat\src.cpp(149,11): warning C4101: 'menu_alpha': unreferenced local variable
+C:\Users\Falke\Source\Repos\AC-Multi-Cheat1234\src.cpp(23,49): warning C4067: unexpected tokens following preprocessor directive - expected a newline
+  utilities.cpp
 LINK : warning LNK4098: defaultlib 'MSVCRTD' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
-  0 of 1867 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
+  1652 of 1656 functions (99.8%) were compiled, the rest were copied from previous compilation.
+    26 functions were new in current compilation
+    1 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
-  AC Multi Cheat.vcxproj -> C:\Users\Falke\source\repos\AC-Multi-Cheat\Release\AC Multi Cheat.exe
-  'pwsh.exe' is not recognized as an internal or external command,
-  operable program or batch file.
+  AC Multi Cheat.vcxproj -> C:\Users\Falke\Source\Repos\AC-Multi-Cheat1234\Release\AC Multi Cheat.exe
