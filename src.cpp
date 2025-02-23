@@ -437,7 +437,6 @@ int main(int, char**)
                   {entity[i].Origin.X - 2, entity[i].Origin.Y + 2, entity[i].HeadOrigin.Z},
             };
 
-            
             bool allCornersValid = true;
 
             for (int j = 0; j < 8; j++) {
