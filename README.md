@@ -1,36 +1,5 @@
 ![Image](https://github.com/user-attachments/assets/3b035ca4-705a-4649-a893-2c0cef19c5e8)
 
-
-# To do
-- add direction vectors ( maybe with imgui )
-- add origin coordinates axis ( maybe with imgui idk )
-- add color management for debug elements to imgui
-- manage imgui menu better
-- clean and organise code
-- only use one naming convesion
-- display variables for debug purposes
-- display angles in triangle
-- Better debugging for entities ( add feaure to imgui / display entity data in imgui menu )
-- Manage vertices
-- Avoid magic numbers
-- Use Enums to avoid magic numbers
-- Use classes instead of structs for entities and players
-- More OOP
-- Managae valid entities better
-- Manage std::vector for valid entities better
-- Manage WordlToscreen Pipeline better
-- Manage NDC Cooridnates in player and entity class
-- add more variables to entity class
-- Clean Up Code and manage variables in a global file
-- Make Compiling better / for linux and older windows version
-- Add more comments
-- Port to other Operating Systems
-- add 1 or 2 more imgui menus to display debug variables
-- add debug features like move entity or change entity name etc. ( health, armor etc. ) in imgui
-- Use imgui to its fullest potential
-
-
-
 # WorldToScreen, Aimbot, and Wallhack Documentation
 
 ## 1. Implementation of the Aimbot
@@ -160,3 +129,33 @@ This document covers the implementation of the `WorldToScreen` function, the Aim
 ![Image](https://github.com/user-attachments/assets/e222ca09-cf74-4f78-b264-2ebffe465415)
 
 ![Image](https://github.com/user-attachments/assets/d873aa18-f8a3-4b58-bdfb-1ae7ce703dd6)
+
+
+
+# To do
+- add direction vectors ( maybe with imgui )
+- add origin coordinates axis ( maybe with imgui idk )
+- add color management for debug elements to imgui
+- manage imgui menu better
+- clean and organise code
+- only use one naming convesion
+- display variables for debug purposes
+- display angles in triangle
+- Better debugging for entities ( add feaure to imgui / display entity data in imgui menu )
+- Manage vertices
+- Avoid magic numbers
+- Use Enums to avoid magic numbers
+- Use classes instead of structs for entities and players
+- More OOP
+- Managae valid entities better
+- Manage std::vector for valid entities better
+- Manage WordlToscreen Pipeline better
+- Manage NDC Cooridnates in player and entity class
+- add more variables to entity class
+- Clean Up Code and manage variables in a global file
+- Make Compiling better / for linux and older windows version
+- Add more comments
+- Port to other Operating Systems
+- add 1 or 2 more imgui menus to display debug variables
+- add debug features like move entity or change entity name etc. ( health, armor etc. ) in imgui
+- Use imgui to its fullest potential
