@@ -1,7 +1,6 @@
 #pragma once
 #include <Windows.h>
 #include <TlHelp32.h>
-#include "datatypes.h"
 
 DWORD GetProcId(const wchar_t* processName);
 uintptr_t GetModuleBaseAddr(DWORD processId, const wchar_t* moduleName);
@@ -25,8 +24,5 @@ namespace Memory
     }
 
 }
-
-void getEntity(Entity& entity);
-
 
 

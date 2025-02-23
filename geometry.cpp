@@ -17,9 +17,10 @@ void CalculateNewAngles(Entity& Player, Entity& entity)
 	{
 		nearest_enemy = distance;
 
-		float angle_xy = atan2f(vector_y, vector_x);
+		float angle_xy = atan2f(vector_y , vector_x);
 		float yaw = (float)(angle_xy * (180.0 / M_PI));
-		new_yaw = yaw + 90;
+		new_yaw = (yaw + 90);
+
 
 		float angle_z = atanf(vector_z / hypothenuse(vector_x, vector_y));
 		new_pitch = (float)(angle_z * (180.0 / M_PI));

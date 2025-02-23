@@ -16,6 +16,7 @@ namespace offsets
 	extern uintptr_t lifesequence; // Lebensstatus vom Spieler
 	extern uintptr_t name; // Name vom Spieler
 	extern uintptr_t team; // Team Nummer vom Spieler
+	extern uintptr_t armor; // Team Nummer vom Spieler
 	extern uintptr_t mvp_matrix;
 	extern uintptr_t ammo_assaultRifle;
 	extern uintptr_t ammo_Pistol;

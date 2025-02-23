@@ -80,20 +80,6 @@ uintptr_t GetModuleBaseAddr(DWORD processId, const wchar_t* moduleName)
 
 }
 
-void getEntity(Entity& entity)
-{
-	entity.Origin = Memory::RPM<Vec3>(entity.baseaddress + offsets::newpos);
 
-	entity.HeadOrigin = Memory::RPM<Vec3>(entity.baseaddress + offsets::origin);
-
-	entity.Angles = Memory::RPM<Vec3>(entity.baseaddress + offsets::yaw);
-
-	entity.health = Memory::RPM<int>(entity.baseaddress + offsets::health);
-
-	entity.armor = Memory::RPM<int>(entity.baseaddress + offsets::armor);
-
-	entity.team = Memory::RPM<int>(entity.baseaddress + offsets::team);
-
-}
 
 

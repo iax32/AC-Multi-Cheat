@@ -57,6 +57,7 @@ bool enable_enemy_snaplines = false;
 bool enable_team_snaplines = false;
 bool enable_aimbot = false;
 bool enable_aimbot_debug = false;
+bool debug_vectors = false, debug_aimbot = false, debug_entities = false;
 
 static int esp_mode = 0;
 extern float nearest_enemy = -1.0f;
@@ -78,9 +79,7 @@ int main(int, char**)
    
     if (glfwGetCurrentContext() == NULL) {
         std::cerr << "Error: OpenGL context is not initialized!" << std::endl;
-        
     }
-
 
     const char* glsl_version = "#version 130";
 
@@ -230,7 +229,7 @@ int main(int, char**)
             // Debugging Options
             ImGui::TextColored(ImVec4(0.9f, 0.3f, 0.3f, 1.0f), "Debugging");
             ImGui::Separator();
-            static bool debug_vectors = false, debug_aimbot = false, debug_entities = false;
+            
             ImGui::Checkbox("Show Direction Vectors", &debug_vectors);
             ImGui::Checkbox("Enable Aimbot Debug", &debug_aimbot);
             ImGui::Checkbox("Show Entity Info", &debug_entities);
@@ -266,7 +265,7 @@ int main(int, char**)
         }
 
 
-        getEntity(Player);
+        Player.getEntity();
         nearest_enemy = -1.0f;
         new_yaw = 0.0f;
         new_pitch = 0.0f;
@@ -295,11 +294,18 @@ int main(int, char**)
 
         for (unsigned int i = 0; i < 32; i++)  // Fix loop condition (0 <= 32 can cause unnecessary iterations)
         {
+
             entity[i].baseaddress = Memory::RPM<uintptr_t>(listEntry + i * 0x4);
+
+            
+
             if (entity[i].baseaddress == NULL)
                 continue;
 
-            getEntity(entity[i]);
+
+            entity[i].getEntity();
+
+
             if (entity[i].health <= 0 || entity[i].health > 100)
                 continue;
 
@@ -310,18 +316,23 @@ int main(int, char**)
 				Player.Origin = PreviousPosition;
 			}
 
+            float triangleColor[4] = {1.0f, 1.0f, 1.0f, 1.0f};
             Vec3 corners2[4] =
             {
                 Player.Origin, // 0
                 entity[i].Origin, // 1
                 {Player.Origin.X, entity[i].Origin.Y, entity[i].Origin.Z}, // 2
                 entity[i].HeadOrigin // 3
-
-
             };
 
 
             Vec2 screenCorners2[4];
+
+            WorldToScreen(corners2[2], screenCorners2[2], Player.Matrix.Matrix);
+
+            WorldToScreenPlayer(Player.Origin, screenCorners2[0], Player.Matrix.Matrix);
+            WorldToScreenPlayer(Player.Origin, playerFeetCoords, Player.Matrix.Matrix);
+
 
             // Transform Feet and Head Positions
             if (!WorldToScreen(entity[i].Origin, FeetCoords, Player.Matrix.Matrix))
@@ -330,15 +341,19 @@ int main(int, char**)
                 continue;
 			
 
+            /*
+            for (int j = 0; j < 8; j++) {
+                if (!WorldToScreen(entity[i].boundingBoxes[j], entity[i].boundingBoxesNdc[i], Player.Matrix.Matrix)) {
+                    std::cout << "Corner " << j << " failed to transform!" << std::endl;
+                    allCornersValid = false;
+                    break;  // Skip rendering if any point is off-screen
+                }
+            }
+            */
             
+            float boxColor[4] = { 0.0f, 1.0f, 1.0f, 1.0f }; // Red box
 
-            
-
-            float boxColor[4] = { 1.0f, 0.0f, 0.0f, 1.0f }; // Red box
-
-
-
-            Vec3 corners[8] =
+            Vec3 boundingBoxes[8] =
             {
                   {entity[i].Origin.X + 2, entity[i].Origin.Y + 2, entity[i].Origin.Z},
                   {entity[i].Origin.X + 2, entity[i].Origin.Y - 2, entity[i].Origin.Z},
@@ -346,31 +361,24 @@ int main(int, char**)
                   {entity[i].Origin.X - 2, entity[i].Origin.Y - 2, entity[i].Origin.Z},
                   {entity[i].Origin.X - 2, entity[i].Origin.Y + 2, entity[i].Origin.Z},
 
-                  {entity[i].Origin.X + 2, entity[i].Origin.Y + 2, entity[i].Origin.Z + 5},
-                  {entity[i].Origin.X + 2, entity[i].Origin.Y - 2, entity[i].Origin.Z + 5},
+                  {entity[i].Origin.X + 2, entity[i].Origin.Y + 2, entity[i].HeadOrigin.Z},
+                  {entity[i].Origin.X + 2, entity[i].Origin.Y - 2, entity[i].HeadOrigin.Z},
 
-                  {entity[i].Origin.X - 2, entity[i].Origin.Y - 2, entity[i].Origin.Z + 5},
-                  {entity[i].Origin.X - 2, entity[i].Origin.Y + 2, entity[i].Origin.Z + 5},
-
+                  {entity[i].Origin.X - 2, entity[i].Origin.Y - 2, entity[i].HeadOrigin.Z},
+                  {entity[i].Origin.X - 2, entity[i].Origin.Y + 2, entity[i].HeadOrigin.Z},
             };
 
-
-            Vec2 screenCorners[8];
+            Vec2 boundingBoxesNdc[8];
             bool allCornersValid = true;
 
+
             for (int j = 0; j < 8; j++) {
-                if (!WorldToScreen(corners[j], screenCorners[j], Player.Matrix.Matrix)) {
+                if (!WorldToScreen(boundingBoxes[j], boundingBoxesNdc[j], Player.Matrix.Matrix)) {
                     std::cout << "Corner " << j << " failed to transform!" << std::endl;
                     allCornersValid = false;
-                    break;  // Skip rendering if any point is off-screen
                 }
             }
-
-
-            if (!WorldToScreen(corners2[2], screenCorners2[2], Player.Matrix.Matrix))
-                continue;
-            if (!WorldToScreenPlayer(Player.Origin, screenCorners2[0], Player.Matrix.Matrix))
-                continue;
+            
            
             // Determine if the entity is an enemy
             bool is_enemy = (Player.team != entity[i].team);
@@ -385,7 +393,7 @@ int main(int, char**)
                     break;
                 case 2:
                     if (allCornersValid && enable_enemy_esp)
-                        DrawBox3D(screenCorners, color_enemy_box);
+                        DrawBox3D(boundingBoxesNdc, boxColor);
                     break;
                 case 3:
                     if (enable_enemy_esp)
@@ -400,27 +408,27 @@ int main(int, char**)
                 if (enable_enemy_armorbar)
                     DrawArmorBar(FeetCoords, HeadCoords, entity[i].armor);
 
-                if (enable_aimbot_debug)
+
+                if (debug_aimbot)
                 {
                     // Triangle 1 XY
-                    DrawLine(screenCorners2[0], FeetCoords, color_enemy_snaplines);
+                    DrawLine(screenCorners2[0], FeetCoords, triangleColor);
                     RenderText("90", fontBase, screenCorners2[2].X, screenCorners2[2].Y + 0.1);
-                    DrawLine(FeetCoords, screenCorners2[2], color_enemy_snaplines);
-                    DrawLine(screenCorners2[2], screenCorners2[0], color_enemy_snaplines);
+                    DrawLine(FeetCoords, screenCorners2[2], triangleColor);
+                    DrawLine(screenCorners2[2], screenCorners2[0], triangleColor);
                     RenderText(str.c_str(), fontBase, screenCorners2[0].X, screenCorners2[0].Y + 0.1);
-
 
                     //Triangle 2 Z
                     glLineWidth(1.0f);
-                    DrawLine(screenCorners2[0], FeetCoords, color_enemy_snaplines);
+                    DrawLine(screenCorners2[0], FeetCoords, triangleColor);
 
                     glLineWidth(1.0f);
-                    DrawLine(FeetCoords, HeadCoords, color_enemy_snaplines);
+                    DrawLine(FeetCoords, HeadCoords, triangleColor);
 
                     glLineWidth(1.0f);
-                    DrawLine(HeadCoords, screenCorners2[0], color_enemy_snaplines);
+                    DrawLine(HeadCoords, screenCorners2[0], triangleColor);
                 }
-                
+                glColor4f(1, 1, 1, 1);
                 RenderText("Enemy", fontBase, HeadCoords.X, HeadCoords.Y);
 
 
@@ -431,7 +439,6 @@ int main(int, char**)
                 str1 = std::to_string(new_yaw);
             }
             else {
-
                 switch (esp_mode)
                 {
                 case 1:
@@ -440,7 +447,7 @@ int main(int, char**)
                     break;
                 case 2:
                     if (allCornersValid && enable_team_esp)
-                        DrawBox3D(screenCorners, color_team_box);
+                        DrawBox3D(boundingBoxesNdc, boxColor);
                     break;
                 case 3:
                     if (enable_team_esp)
@@ -454,17 +461,104 @@ int main(int, char**)
                     DrawHealthBar(FeetCoords, HeadCoords, entity[i].health);
                 if (enable_team_armorbar)
                     DrawArmorBar(FeetCoords, HeadCoords, entity[i].armor);
+
+                glColor4f(1,1,1,1);
                 RenderText("Teammate", fontBase, HeadCoords.X, HeadCoords.Y);
 
             }
+
+            Vec3 gizmo[3] =
+            {
+                {entity[i].Origin.X + 1, entity[i].Origin.Y, entity[i].Origin.Z},
+                {entity[i].Origin.X, entity[i].Origin.Y - 1, entity[i].Origin.Z},
+                {entity[i].Origin.X, entity[i].Origin.Y , entity[i].Origin.Z + 1.}
+            };
+
+            Vec2 gizmoNdc[3];
+
+            Vec3 gizmoPlayer[3] =
+            {
+                {Player.Origin.X + 1, Player.Origin.Y, Player.Origin.Z},
+                {Player.Origin.X, Player.Origin.Y - 1, Player.Origin.Z},
+                {Player.Origin.X, Player.Origin.Y , Player.Origin.Z + 1.}
+            };
+
+            Vec2 gizmoPlayerNdc[3];
+
+
+
+            for (int i = 0; i < 3; i++)
+            {
+                WorldToScreen(gizmo[i], gizmoNdc[i], Player.Matrix.Matrix);
+            }
+
+            for (int i = 0; i < 3; i++)
+            {
+                WorldToScreenPlayer(gizmoPlayer[i], gizmoPlayerNdc[i], Player.Matrix.Matrix);
+            }
+
+            if (debug_vectors)
+            {
+                glLineWidth(3.0f);
+
+                float red[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
+                DrawLine(FeetCoords, gizmoNdc[0], red);
+                RenderText("X", fontBase, gizmoNdc[0].X + 0.01, gizmoNdc[0].Y + 0.01);
+
+                float green[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
+                DrawLine(FeetCoords, gizmoNdc[1], green);
+                RenderText("Y", fontBase, gizmoNdc[1].X + 0.01, gizmoNdc[1].Y + 0.01);
+
+                float blue[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
+                DrawLine(FeetCoords, gizmoNdc[2], blue);
+                RenderText("Z", fontBase, gizmoNdc[2].X + 0.01, gizmoNdc[2].Y + 0.01);
+
+                glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+                RenderText("LAST POSTION", fontBase, playerFeetCoords.X, playerFeetCoords.Y - 0.05);
+
+
+                glLineWidth(1.0f);
+            }
+
+            if (debug_vectors)
+            {
+                glLineWidth(3.0f);
+                float red[4] = { 0.5f, 0.0f, 0.0f, 0.0f };
+                DrawLine(playerFeetCoords, gizmoPlayerNdc[0], red);
+                RenderText("X", fontBase, gizmoPlayerNdc[0].X + 0.01, gizmoPlayerNdc[0].Y + 0.01);
+
+                float green[4] = { 0.0f, 0.5f, 0.0f, 0.0f };
+                DrawLine(playerFeetCoords, gizmoPlayerNdc[1], green);
+                RenderText("Y", fontBase, gizmoPlayerNdc[1].X + 0.01, gizmoPlayerNdc[1].Y + 0.01);
+
+                float blue[4] = { 0.0f, 0.0f, 0.5f, 0.0f };
+                DrawLine(playerFeetCoords, gizmoPlayerNdc[2], blue);
+                RenderText("Z", fontBase, gizmoPlayerNdc[2].X + 0.01, gizmoPlayerNdc[2].Y + 0.01);
+                glLineWidth(1.0f);
+            }
+            
         }
 
 
-        RenderText(str.c_str(), fontBase, -0.8f, 0.8f);
-        RenderText("Calculated Pitch: ", fontBase, -0.99f, 0.8f);
-        RenderText("Calculated Yaw: ", fontBase, -0.99f, 0.7f);
-        RenderText(str1.c_str(), fontBase, -0.8f, 0.7f);
-        RenderText("Backspace: Save Last Pos", fontBase, -0.8f, 0.5f);
+
+
+        glColor4f(1, 1, 1, 1);
+        RenderText(str.c_str(), fontBase, -0.8f, 0.9f);
+        RenderText("Calculated Pitch: ", fontBase, -0.99f, 0.9f);
+
+        RenderText("Calculated Yaw: ", fontBase, -0.99f, 0.8f);
+        RenderText(str1.c_str(), fontBase, -0.8f, 0.8f);
+
+        if (activatedLastPos)
+        {
+            glColor4f(0,1,0,1);
+            
+        }
+        else
+        {
+            glColor4f(1, 0, 0, 1);
+        }
+        RenderText("Save Last Pos: Backspace", fontBase, -0.99f, 0.7f);
 
         Memory::WPM<int>(Player.baseaddress + offsets::mag_assaultRifle, 1337);
         Memory::WPM<int>(Player.baseaddress + offsets::health, 1337);
