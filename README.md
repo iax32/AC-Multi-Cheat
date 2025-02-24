@@ -159,3 +159,4 @@ This document covers the implementation of the `WorldToScreen` function, the Aim
 - add 1 or 2 more imgui menus to display debug variables
 - add debug features like move entity or change entity name etc. ( health, armor etc. ) in imgui
 - Use imgui to its fullest potential
+- Add more parameters for drawing Lines -> Line thickness / Line Color / etc. if needed
