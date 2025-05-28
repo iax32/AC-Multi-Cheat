@@ -122,7 +122,6 @@ bool WorldToScreen(const Vec3& VecOrigin, Vec2& NDC, float* MVPMatrix);
 ```
 
 ## Summary
-This document covers the implementation of the `WorldToScreen` function, the Aimbot, and the Wallhack in a structured and formatted manner suitable for GitHub documentation. The Aimbot ensures that the nearest enemy is targeted by calculating yaw and pitch angles, while the Wallhack transforms 3D coordinates into a 2D space for visualization.
 
 
 
@@ -131,22 +130,3 @@ This document covers the implementation of the `WorldToScreen` function, the Aim
 ![Image](https://github.com/user-attachments/assets/d873aa18-f8a3-4b58-bdfb-1ae7ce703dd6)
 
 
-
-# To do
-- [X] add direction vectors ( maybe with imgui )
-- [ ] add direction vectors ( head of enemy )
-- [X] add origin coordinates axis ( maybe with imgui idk )
-- [ ] add color management for debug elements to imgui
-- [ ] manage imgui menu better
-- [ ] display variables for debug purposes
-- [ ] display angles in triangle ( Maybe with a circle? )
-- [ ] Better debugging for entities ( add feaure to imgui / display entity data in imgui menu ) -> Manage std::vector better in order to work without any issues
-- [ ] Manage vertices
-- [ ] Avoid magic numbers 
-- [ ] Managae valid entities better
-- [ ] Manage std::vector for valid entities better
-- [ ] Clean Up Code and manage variables in a global file
-- [ ] Make Compiling better / for linux and older windows version
-- [ ] Add more comments
-- [ ] add debug features like move entity or change entity name etc. ( health, armor etc. ) in imgui
-- 
